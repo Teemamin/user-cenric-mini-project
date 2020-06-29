@@ -32,6 +32,7 @@ def insert_task():
 
 @app.route('/edit_task/<task_id>')
 def edit_task(task_id):
+    # fetching the task that matches this task ID.And we'll eventually redirect it to an edit task HTML
     the_task =  mongo.db.tasks.find_one({"_id": ObjectId(task_id)})
     all_categories =  mongo.db.categories.find()
     return render_template('edittask.html', task=the_task, categories=all_categories)
