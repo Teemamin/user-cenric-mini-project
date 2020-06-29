@@ -1,7 +1,7 @@
 import os
 from flask import Flask, render_template, redirect, request, url_for
 from flask_pymongo import PyMongo
-from bson.objectid import ObjectId 
+from bson.objectid import ObjectId  #inorder to use the id n match the id in mongo, we hv to convert to bson
 from os import path 
 if os.path.exists("env.py"):
      import env
@@ -20,9 +20,23 @@ def get_tasks():
 
 @app.route("/add_task")
 def add_task():
-    return render_template("add-task.html")
+    return render_template("add-task.html",categories=mongo.db.categories.find())
 
 
+@app.route("/insert_task",methods=["POST"])
+def insert_task():
+    tasks = mongo.db.tasks
+    tasks.insert_one(request.form.to_dict())
+    return redirect(url_for("get_tasks"))
+
+
+@app.route('/edit_task/<task_id>')
+def edit_task(task_id):
+    the_task =  mongo.db.tasks.find_one({"_id": ObjectId(task_id)})
+    all_categories =  mongo.db.categories.find()
+    return render_template('edittask.html', task=the_task, categories=all_categories)
+
+    
 if __name__ == '__main__':
     app.run(host=os.environ.get('IP'),
             port=int(os.environ.get('PORT')),
